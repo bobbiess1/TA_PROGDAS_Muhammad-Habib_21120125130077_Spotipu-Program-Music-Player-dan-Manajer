@@ -3,7 +3,9 @@ from tkinter import messagebox, ttk, Toplevel, simpledialog
 import pygame
 import os
 import random
-# BACKEND YAAAH
+
+#BACKEND YAA
+
 class Lagu:
     def __init__(self, judul, file_path):
         self.judul = judul
@@ -76,15 +78,8 @@ class SistemMusik:
     def tambah_playlist(self, nama, lagu):
         self.user_aktif.playlists[nama].append(lagu); return True
 
-    def hapus_dari_playlist(self, nama, index):
-        if nama in self.user_aktif.playlists:
-            try:
-                self.user_aktif.playlists[nama].pop(index)
-                return True
-            except IndexError:
-                return False
-        return False
-# UI UXXX NYA KIDSS
+    
+# UI UXXX
 class ScrollableFrame(tk.Frame):
     def __init__(self, container, bg_color, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
@@ -119,6 +114,7 @@ class AplikasiMusikGUI:
         self.root.title("Spotipu - Program Music Player dan Manajer")
         self.root.geometry("1200x700")
         self.root.minsize(1000, 500)
+        self.root.resizable(True, True)
 
     def _setup_theme(self):
         self.colors = {
@@ -147,7 +143,7 @@ class AplikasiMusikGUI:
         if self.timer_id: self.root.after_cancel(self.timer_id)
         for w in self.root.winfo_children(): w.destroy()
 
-    # LOGIN SIRRR
+    # YESSIR LOGIN
     def _show_login(self):
         self._clear_root()
         self.root.configure(bg=self.colors["bg_dark"])
@@ -169,7 +165,7 @@ class AplikasiMusikGUI:
         if self.sistem.daftar(u, p): messagebox.showinfo("Sukses", "Silakan login")
         else: messagebox.showerror("Gagal", "Username sudah dipakai")
 
-    #  DASHBOARD UTAMA
+    # BENTUKAN DASHBOARD
     def _show_dashboard(self):
         self._clear_root()
         main_container = tk.Frame(self.root, bg=self.colors["bg_dark"])
@@ -180,16 +176,16 @@ class AplikasiMusikGUI:
         self.sidebar.pack(side='left', fill='y')
         self.sidebar.pack_propagate(False)
 
-        # PANEL KANAN CIK
+        # PANEL KANAN
         self.right_panel = tk.Frame(main_container, bg=self.colors["right_panel"], width=280)
         self.right_panel.pack(side='right', fill='y')
         self.right_panel.pack_propagate(False)
 
-        # KONTENNN
+        # KONTEN TENGAH
         self.content_area = tk.Frame(main_container, bg=self.colors["bg_dark"])
         self.content_area.pack(side='left', fill='both', expand=True)
 
-        # BENTUKAN BAR
+        # PLAYER BAR (BAWAH)
         self.player_bar = tk.Frame(self.root, bg=self.colors["player_bar"], height=90)
         self.player_bar.pack(side='bottom', fill='x')
         self.player_bar.pack_propagate(False)
@@ -268,7 +264,7 @@ class AplikasiMusikGUI:
         self.pbar = ttk.Progressbar(ctrl_frame, orient='horizontal', mode='determinate', style="Neon.Horizontal.TProgressbar")
         self.pbar.pack(side='top', fill='x', padx=50)
 
-    # TEMPAT NAVIGASI
+    # NAVIGASI WOILAH
     def _load_page(self, page_name, data_tambahan=None):
         self.current_page = page_name
         for w in self.content_area.winfo_children(): w.destroy()
@@ -284,7 +280,7 @@ class AplikasiMusikGUI:
         elif page_name == "Playlist": self._render_playlist_menu(content)
         elif page_name == "Playlist Detail": self._render_detail_playlist(content, data_tambahan)
 
-    def _create_song_row(self, parent, lagu, idx=None, cmd_play=None, cmd_hapus=None):
+    def _create_song_row(self, parent, lagu, idx=None, cmd_play=None):
         row = tk.Frame(parent, bg=self.colors["card_bg"], pady=8, padx=10)
         row.pack(fill='x', pady=2)
         tk.Label(row, text="♫", font=("Arial", 12), bg=self.colors["card_bg"], fg=self.colors["neon_pink"]).pack(side='left', padx=10)
@@ -293,9 +289,6 @@ class AplikasiMusikGUI:
         
         if cmd_play:
             tk.Button(row, text="PUTAR", font=("Arial", 8, "bold"), bg=self.colors["neon_purple"], fg="white", bd=0, padx=10, command=cmd_play).pack(side='right', padx=5)
-        
-        if cmd_hapus:
-            tk.Button(row, text="🗑", font=("Arial", 10), bg=self.colors["danger_red"], fg="white", bd=0, padx=8, command=cmd_hapus).pack(side='right', padx=5)
         
         if self.current_page == "Library":
             tk.Button(row, text="+ PL", font=("Arial", 8), bg="#333", fg="white", bd=0, padx=5, command=lambda: self._popup_playlist_select(lagu)).pack(side='right', padx=5)
@@ -315,7 +308,8 @@ class AplikasiMusikGUI:
     def _render_history(self, parent):
         items = list(reversed(self.sistem.user_aktif.riwayat.items))
         if not items: tk.Label(parent, text="Belum ada riwayat", fg="gray", bg=self.colors["bg_dark"]).pack(pady=20); return
-        for i, lagu in enumerate(items): self._create_song_row(parent, lagu, idx=i+1, cmd_play=lambda l=lagu: self._mainkan_context([l], 0))
+        for i, lagu in enumerate(items):
+            self._create_song_row(parent, lagu, idx=i+1, cmd_play=lambda l=lagu: self._mainkan_context([l], 0))
 
     def _render_playlist_menu(self, parent):
         tk.Button(parent, text="+ Buat Playlist Baru", bg=self.colors["neon_pink"], fg="white", bd=0, font=("Arial", 11, "bold"), padx=15, pady=10, command=self._buat_pl).pack(anchor='w', pady=(0, 20))
@@ -343,18 +337,10 @@ class AplikasiMusikGUI:
                 parent,
                 lagu,
                 idx=i+1,
-                cmd_play=lambda idx=i: self._mainkan_context(lagu_list, idx),
-                # Menambahkan logika hapus di sini:
-                cmd_hapus=lambda idx=i: self._aksi_hapus_lagu_pl(nama_playlist, idx)
+                cmd_play=lambda idx=i: self._mainkan_context(lagu_list, idx)
             )
-    def _aksi_hapus_lagu_pl(self, nama_pl, idx):
-        if messagebox.askyesno("Konfirmasi", "Yakin ingin menghapus lagu ini dari playlist?"):
-            if self.sistem.hapus_dari_playlist(nama_pl, idx):
-                self._load_page("Playlist Detail", nama_pl)
-            else:
-                messagebox.showerror("Error", "Gagal menghapus lagu")
 
-    # TEMPAT ENGINE
+    # ENGINEEE
     def _mainkan_context(self, list_lagu, index_mulai):
         self.sistem.playlist_aktif = list(list_lagu) 
         self.sistem.index_aktif = index_mulai
@@ -413,7 +399,8 @@ class AplikasiMusikGUI:
         if not pygame.mixer.music.get_busy() and self.is_playing and not self.is_paused: self._next_song(); return
         if self.is_playing and not self.is_paused: self.detik_berjalan = pygame.mixer.music.get_pos() / 1000
         total = self.sistem.lagu_sekarang.durasi
-        if total > 0: self.pbar['value'] = (self.detik_berjalan / total) * 100
+        if total > 0: 
+            self.pbar['value'] = (self.detik_berjalan / total) * 100
         self.lbl_now_time.config(text=f"{self.sistem.lagu_sekarang.format_waktu(self.detik_berjalan)} / {self.sistem.lagu_sekarang.format_waktu(total)}")
         self.timer_id = self.root.after(1000, self._update_timer)
 
